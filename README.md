@@ -9,3 +9,4 @@ Aplicação de cuidadores utilizando Node.js, Express e PostgreSQL.
 2. Instale as dependências executando `npm install`.
 3. Inicie o servidor com `node backend/server.js`.
 # TCC
+# TCC
