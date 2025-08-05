@@ -28,14 +28,22 @@ const ProfessionalController = {
         const { email, senha } = req.body;
 
         try {
-            // Busca profissional por email e senha
-            const professional = await ProfessionalModel.findProfessionalByEmailAndPassword(email, senha);
+            // Busca profissional por email
+            const professional = await ProfessionalModel.findProfessionalByEmail(email);
 
             if (professional) {
-                // Se encontrado, retorna os dados
-                res.json(professional);
+                // Verifica se a senha fornecida corresponde ao hash armazenado
+                const isPasswordValid = await ProfessionalModel.verifyPassword(senha, professional.senha);
+                
+                if (isPasswordValid) {
+                    // Se a senha estiver correta, retorna os dados do profissional
+                    res.json(professional);
+                } else {
+                    // Se a senha estiver incorreta, retorna erro 401
+                    res.status(401).send('Credenciais inválidas');
+                }
             } else {
-                // Se não encontrado, retorna erro 401 (não autorizado)
+                // Se o profissional não for encontrado, retorna erro 401
                 res.status(401).send('Credenciais inválidas');
             }
         } catch (err) {

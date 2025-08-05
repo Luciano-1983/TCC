@@ -28,14 +28,22 @@ const UserController = {
         const { email, senha } = req.body;
 
         try {
-            // Busca o usuário pelo email e senha
-            const user = await UserModel.findUserByEmailAndPassword(email, senha); 
+            // Busca o usuário pelo email
+            const user = await UserModel.findUserByEmail(email); 
 
             if (user) {
-                // Se encontrado, retorna os dados
-                res.json(user);
+                // Verifica se a senha fornecida corresponde ao hash armazenado
+                const isPasswordValid = await UserModel.verifyPassword(senha, user.senha);
+                
+                if (isPasswordValid) {
+                    // Se a senha estiver correta, retorna os dados do usuário
+                    res.json(user);
+                } else {
+                    // Se a senha estiver incorreta, retorna erro 401
+                    res.status(401).send('Credenciais inválidas');
+                }
             } else {
-                // Caso não encontrado, retorna erro 401 (não autorizado)
+                // Se o usuário não for encontrado, retorna erro 401
                 res.status(401).send('Credenciais inválidas');
             }
         } catch (err) {
