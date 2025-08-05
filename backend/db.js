@@ -1,14 +1,13 @@
-// Importa o Pool do pacote 'pg' (biblioteca oficial do PostgreSQL para Node.js)
-const { Pool } = require('pg');
+/**
+ * Arquivo de configuração do banco de dados (Legacy)
+ * 
+ * NOTA: Este arquivo foi mantido para compatibilidade com código existente.
+ * Para novos desenvolvimentos, use o DatabaseManager em config/database.js
+ * 
+ * @deprecated Use config/database.js instead
+ */
 
-// Cria uma instância de pool de conexões com as configurações do seu banco de dados
-const pool = new Pool({
-    user: 'postgres',       // Nome do usuário do banco
-    host: 'localhost',      // Host do banco (geralmente localhost em desenvolvimento)
-    database: 'caregiver_db',       // Nome do banco de dados
-    password: 'nova_senha', // Senha do usuário do banco
-    port: 5432,             // Porta padrão do PostgreSQL
-});
+const { pool } = require('./config/database');
 
-// Exporta o pool para ser utilizado em outros arquivos (como models)
+// Exporta o pool para compatibilidade com código existente
 module.exports = pool;
