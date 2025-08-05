@@ -41,21 +41,63 @@ io.on('connection', (socket) => {
 
     // Receber mensagens e encaminhar para o profissional específico
     socket.on('send_message', (data) => {
-    const { fromUserId, toProfessionalId, message } = data;
+        const { fromUserId, toProfessionalId, message, fromUserName } = data;
 
-    console.log(`Enviando mensagem de usuário ${fromUserId} para profissional ${toProfessionalId}: ${message}`);
+        console.log(`Enviando mensagem de usuário ${fromUserId} para profissional ${toProfessionalId}: ${message}`);
 
-    for (let socketId in profissionaisConectados) {
-        if (profissionaisConectados[socketId] === toProfessionalId) {
-            io.to(socketId).emit('receive_message', {
-                fromUserId,
-                message
-            });
-            console.log(`Mensagem enviada ao profissional: ${toProfessionalId}`);
-            break;
+        for (let socketId in profissionaisConectados) {
+            if (profissionaisConectados[socketId] === toProfessionalId) {
+                io.to(socketId).emit('receive_message', {
+                    fromUserId,
+                    fromUserName,
+                    message,
+                    type: 'user'
+                });
+                console.log(`Mensagem enviada ao profissional: ${toProfessionalId}`);
+                break;
+            }
         }
-    }
-});
+    });
+
+    // Receber mensagens do profissional e encaminhar para o usuário específico
+    socket.on('send_professional_message', (data) => {
+        const { fromProfessionalId, toUserId, message, fromProfessionalName } = data;
+
+        console.log(`Enviando mensagem de profissional ${fromProfessionalId} para usuário ${toUserId}: ${message}`);
+
+        for (let socketId in usuariosConectados) {
+            if (usuariosConectados[socketId] === toUserId) {
+                io.to(socketId).emit('receive_message', {
+                    fromProfessionalId,
+                    fromProfessionalName,
+                    message,
+                    type: 'professional'
+                });
+                console.log(`Mensagem enviada ao usuário: ${toUserId}`);
+                break;
+            }
+        }
+    });
+
+    // Receber dados do profissional e encaminhar para o usuário específico
+    socket.on('send_professional_data', (data) => {
+        const { fromProfessionalId, toUserId, dados, fromProfessionalName } = data;
+
+        console.log(`Enviando dados do profissional ${fromProfessionalId} para usuário ${toUserId}`);
+
+        for (let socketId in usuariosConectados) {
+            if (usuariosConectados[socketId] === toUserId) {
+                io.to(socketId).emit('receive_professional_data', {
+                    fromProfessionalId,
+                    fromProfessionalName,
+                    dados,
+                    type: 'professional_data'
+                });
+                console.log(`Dados enviados ao usuário: ${toUserId}`);
+                break;
+            }
+        }
+    });
 
     // Desconectar o usuário ou profissional
     socket.on('disconnect', () => {

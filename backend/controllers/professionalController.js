@@ -63,6 +63,22 @@ const ProfessionalController = {
         }
     },
 
+    // Método para buscar um profissional específico por ID
+    getById: async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            const profissional = await ProfessionalModel.findById(id);
+            if (!profissional) {
+                return res.status(404).json({ message: 'Profissional não encontrado' });
+            }
+            res.json(profissional);
+        } catch (error) {
+            console.error('Erro ao buscar profissional:', error);
+            res.status(500).json({ message: 'Erro ao buscar profissional' });
+        }
+    },
+
     // Método para atualizar os dados de um profissional
     update: async (req, res) => {
     const { id } = req.params;

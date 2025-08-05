@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profissionalEspecialidadeValor = document.getElementById('profissional-especialidade-valor');
     const profissionalRegistroValor = document.getElementById('profissional-registro-valor');
     const editarDadosButton = document.getElementById('editar-dados');
+    const abrirChatProfissionalButton = document.getElementById('abrir-chat-profissional');
     const logoutProfissionalButton = document.getElementById('logout-profissional');
     const excluirCadastroButton = document.getElementById('excluir-cadastro');
 
@@ -64,6 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let usuarioLogado = null;
     let profissionalIdSelecionado = null;  // Armazena o ID do profissional escolhido pelo usuário
 
+    // Função para tocar notificação sonora
+    function tocarNotificacao() {
+        try {
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+            audio.volume = 0.3;
+            audio.play();
+        } catch (error) {
+            console.log('Erro ao tocar notificação:', error);
+        }
+    }
+
 // Verifique se o 'profissionalIdSelecionado' está sendo atribuído corretamente
 document.getElementById('lista-profissionais').addEventListener('click', function(event) {
     if (event.target.classList.contains('chat-button')) {
@@ -72,34 +84,197 @@ document.getElementById('lista-profissionais').addEventListener('click', functio
     }
 });
 
-    // Envia a mensagem para o Socket.IO
-document.getElementById('user-chat-send-button').addEventListener('click', () => {
-    const message = document.getElementById('user-chat-message-input').value;
+    // Variáveis para controlar o chat
+    let usuarioAtualChat = null; // Armazena informações do usuário com quem o profissional está conversando
+    let profissionalAtualChat = null; // Armazena informações do profissional com quem o usuário está conversando
 
-    if (message.trim() !== "" && profissionalIdSelecionado) {
-        socket.emit('send_message', { fromUserId: usuarioLogado.id, toProfessionalId: profissionalIdSelecionado, message });
-        exibirMensagemNoChat('Você: ' + message, 'sent');
-        document.getElementById('user-chat-message-input').value = ''; // Limpa o campo
-    } else {
-        alert("Digite uma mensagem para enviar.");
+    // Envia a mensagem do usuário para o profissional
+    document.getElementById('user-chat-send-button').addEventListener('click', () => {
+        enviarMensagemUsuario();
+    });
+
+    // Função para enviar mensagem do usuário
+    function enviarMensagemUsuario() {
+        const message = document.getElementById('user-chat-message-input').value;
+
+        if (message.trim() !== "" && profissionalIdSelecionado) {
+            socket.emit('send_message', { 
+                fromUserId: usuarioLogado.id, 
+                toProfessionalId: profissionalIdSelecionado, 
+                message,
+                fromUserName: usuarioLogado.nome
+            });
+            exibirMensagemNoChat('Você: ' + message, 'sent', 'user');
+            document.getElementById('user-chat-message-input').value = ''; // Limpa o campo
+        } else {
+            alert("Digite uma mensagem para enviar.");
+        }
     }
-});
 
-    // Exibe a mensagem no chat
-    function exibirMensagemNoChat(message, type) {
-    const messageContainer = document.getElementById('user-chat-messages');
-    const newMessage = document.createElement('div');
-    newMessage.classList.add('message', type); // 'sent' ou 'received'
-    newMessage.textContent = message;
-    messageContainer.appendChild(newMessage);
-    messageContainer.scrollTop = messageContainer.scrollHeight;
-}
+    // Enviar mensagem do usuário com Enter
+    document.getElementById('user-chat-message-input').addEventListener('keypress', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            enviarMensagemUsuario();
+        }
+    });
 
-// Verifique se o profissional está recebendo as mensagens também
-socket.on('receive_message', (data) => {
-    const { fromUserId, message } = data;
-    exibirMensagemNoChat('Profissional: ' + message, 'received');
-});
+    // Envia a mensagem do profissional para o usuário
+    document.getElementById('professional-chat-send-button').addEventListener('click', () => {
+        enviarMensagemProfissional();
+    });
+
+    // Função para enviar mensagem do profissional
+    function enviarMensagemProfissional() {
+        const message = document.getElementById('professional-chat-message-input').value;
+
+        if (message.trim() !== "" && usuarioAtualChat) {
+            socket.emit('send_professional_message', { 
+                fromProfessionalId: profissionalLogado.id, 
+                toUserId: usuarioAtualChat.id, 
+                message,
+                fromProfessionalName: profissionalLogado.nome
+            });
+            exibirMensagemNoChat('Você: ' + message, 'sent', 'professional');
+            document.getElementById('professional-chat-message-input').value = ''; // Limpa o campo
+        } else {
+            alert("Digite uma mensagem para enviar.");
+        }
+    }
+
+    // Função para liberar dados do profissional
+    function liberarDadosProfissional() {
+        if (usuarioAtualChat) {
+            const dadosProfissional = `
+                <strong>Dados do Profissional ${profissionalLogado.nome}:</strong><br>
+                Nome Completo: ${profissionalLogado.nome}<br>
+                Telefone: ${profissionalLogado.telefone}<br>
+                Cidade: ${profissionalLogado.cidade}<br>
+                Especialidade: ${profissionalLogado.especialidade}<br>
+                Registro Profissional: ${profissionalLogado.registro} 
+                <a href="https://www.portalcoren-rs.gov.br/index.php?categoria=servicos&pagina=consulta-profissional" 
+                   target="_blank" class="coren-link">
+                    <span class="material-symbols-outlined coren-icon">open_in_new</span>
+                </a>
+            `;
+            
+            // Envia os dados como uma mensagem especial
+            socket.emit('send_professional_data', { 
+                fromProfessionalId: profissionalLogado.id, 
+                toUserId: usuarioAtualChat.id, 
+                dados: dadosProfissional,
+                fromProfessionalName: profissionalLogado.nome
+            });
+            
+            // Exibe a mensagem no chat do profissional
+            exibirMensagemNoChat('Sistema: Seus dados foram compartilhados com o usuário.', 'data-shared', 'professional');
+        } else {
+            alert("Nenhum usuário selecionado para compartilhar dados.");
+        }
+    }
+
+    // Enviar mensagem do profissional com Enter
+    document.getElementById('professional-chat-message-input').addEventListener('keypress', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            enviarMensagemProfissional();
+        }
+    });
+
+    // Botão para liberar dados do profissional
+    document.getElementById('professional-chat-release-data-button').addEventListener('click', () => {
+        liberarDadosProfissional();
+    });
+
+    // Exibe a mensagem no chat do usuário
+    function exibirMensagemNoChat(message, type, chatType = 'user') {
+        console.log('exibirMensagemNoChat chamada:', { message, type, chatType });
+        
+        const messageContainer = chatType === 'user' 
+            ? document.getElementById('user-chat-messages')
+            : document.getElementById('professional-chat-messages');
+        
+        console.log('messageContainer:', messageContainer);
+        
+        if (!messageContainer) {
+            console.error('Container de mensagens não encontrado para chatType:', chatType);
+            return;
+        }
+        
+        const newMessage = document.createElement('div');
+        newMessage.classList.add('message', type); // 'sent', 'received' ou 'data-shared'
+        
+        // Se a mensagem contém HTML (como dados do profissional), use innerHTML
+        if (message.includes('<br>') || message.includes('<strong>') || message.includes('<a href=')) {
+            newMessage.innerHTML = message;
+        } else {
+            newMessage.textContent = message;
+        }
+        
+        messageContainer.appendChild(newMessage);
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+
+    // Recebe mensagens (tanto para usuário quanto para profissional)
+    socket.on('receive_message', (data) => {
+        const { fromUserId, fromProfessionalId, fromUserName, fromProfessionalName, message, type } = data;
+        
+        console.log('Mensagem recebida:', data);
+        console.log('profissionalLogado:', profissionalLogado);
+        console.log('usuarioLogado:', usuarioLogado);
+        
+        if (type === 'user' && profissionalLogado) {
+            console.log('Profissional recebeu mensagem do usuário');
+            // Profissional recebe mensagem do usuário
+            if (!usuarioAtualChat) {
+                usuarioAtualChat = { id: fromUserId, nome: fromUserName };
+                document.getElementById('professional-chat-recipient-name').textContent = fromUserName;
+            }
+            
+            // Exibe o chat do profissional se estiver escondido
+            const professionalChatSection = document.getElementById('professional-chat-section');
+            if (professionalChatSection.classList.contains('hidden')) {
+                professionalChatSection.classList.remove('hidden');
+                // Adiciona uma notificação visual
+                abrirChatProfissionalButton.style.backgroundColor = '#ff6b6b';
+                abrirChatProfissionalButton.innerHTML = '💬 Chat (Nova Mensagem)';
+                // Toca notificação sonora
+                tocarNotificacao();
+            } else {
+                // Se o chat já estiver aberto, apenas toca notificação sonora
+                tocarNotificacao();
+            }
+            
+            exibirMensagemNoChat(`${fromUserName}: ${message}`, 'received', 'professional');
+        } else if (type === 'professional' && usuarioLogado) {
+            console.log('Usuário recebeu mensagem do profissional');
+            // Usuário recebe mensagem do profissional
+            if (!profissionalAtualChat) {
+                profissionalAtualChat = { id: fromProfessionalId, nome: fromProfessionalName };
+            }
+            exibirMensagemNoChat(`${fromProfessionalName}: ${message}`, 'received', 'user');
+        } else {
+            console.log('Mensagem não foi processada - condições não atendidas');
+        }
+    });
+
+    // Recebe dados do profissional
+    socket.on('receive_professional_data', (data) => {
+        const { fromProfessionalId, fromProfessionalName, dados, type } = data;
+        
+        console.log('Dados do profissional recebidos:', data);
+        
+        if (type === 'professional_data' && usuarioLogado) {
+            console.log('Usuário recebeu dados do profissional');
+            // Usuário recebe dados do profissional
+            if (!profissionalAtualChat) {
+                profissionalAtualChat = { id: fromProfessionalId, nome: fromProfessionalName };
+            }
+            exibirMensagemNoChat(dados, 'data-shared', 'user');
+        } else {
+            console.log('Dados do profissional não foram processados - condições não atendidas');
+        }
+    });
 
     // Função para login do usuário ou profissional
     function login(userId, type) {
@@ -117,19 +292,7 @@ socket.on('receive_message', (data) => {
         }
     }
 
-    // Função para selecionar o profissional e abrir o chat
-    document.getElementById('lista-profissionais').addEventListener('click', function(event) {
-        if (event.target.classList.contains('chat-button')) {
-            profissionalIdSelecionado = event.target.dataset.profissionalId;
-            iniciarChatComProfissional(profissionalIdSelecionado);
-        }
-    });
 
-    function iniciarChatComProfissional(profissionalId) {
-        console.log(`Iniciando chat com o profissional de ID: ${profissionalId}`);
-        document.getElementById('chat-section').classList.remove('hidden');
-        profissionalIdSelecionado = profissionalId;
-    }
 
     // Fechar o chat
     document.getElementById('user-chat-close-button').addEventListener('click', () => {
@@ -140,16 +303,7 @@ socket.on('receive_message', (data) => {
         document.getElementById('professional-chat-section').classList.add('hidden');
     });
 
-    // Simulação de login
-    document.getElementById('profissional-login-form').addEventListener('submit', (event) => {
-        event.preventDefault();
-        login(1, 'professional'); // Exemplo de login para o profissional
-    });
 
-    document.getElementById('usuario-login-form').addEventListener('submit', (event) => {
-        event.preventDefault();
-        login(2, 'user'); // Exemplo de login para o usuário
-    });
 
     
 
@@ -164,6 +318,14 @@ socket.on('receive_message', (data) => {
         const logado = localStorage.getItem('logado');
         if (logado) {
             profissionalLogado = JSON.parse(logado);
+            
+            // Limpa dados do usuário se existirem
+            localStorage.removeItem('usuarioLogado');
+            usuarioLogado = null;
+            
+            // Conecta o profissional ao socket
+            socket.emit('login', { userId: profissionalLogado.id, type: 'professional' });
+            
             showProfissionalDashboard(profissionalLogado);
         }
     }
@@ -173,6 +335,14 @@ socket.on('receive_message', (data) => {
         const usuarioLogadoData = localStorage.getItem('usuarioLogado');
         if (usuarioLogadoData) {
             usuarioLogado = JSON.parse(usuarioLogadoData);
+            
+            // Limpa dados do profissional se existirem
+            localStorage.removeItem('logado');
+            profissionalLogado = null;
+            
+            // Conecta o usuário ao socket
+            socket.emit('login', { userId: usuarioLogado.id, type: 'user' });
+            
             showUsuarioBusca(); // Vai direto para tela de busca
         }
     }
@@ -229,8 +399,17 @@ socket.on('receive_message', (data) => {
 
         if (response.ok) {
             const profissional = await response.json();
+            
+            // Limpa dados do usuário se existirem
+            localStorage.removeItem('usuarioLogado');
+            usuarioLogado = null;
+            
             localStorage.setItem('logado', JSON.stringify(profissional));
             profissionalLogado = profissional;
+            
+            // Conecta o profissional ao socket
+            socket.emit('login', { userId: profissional.id, type: 'professional' });
+            
             showProfissionalDashboard(profissional);
         } else {
             alert('Credenciais inválidas.');
@@ -284,6 +463,14 @@ socket.on('receive_message', (data) => {
         document.getElementById('editar-profissional-cidade').value = profissionalLogado.cidade;
         document.getElementById('editar-profissional-especialidade').value = profissionalLogado.especialidade;
         document.getElementById('editar-profissional-registro').value = profissionalLogado.registro;
+    });
+
+    // === Abrir chat do profissional ===
+    abrirChatProfissionalButton.addEventListener('click', () => {
+        document.getElementById('professional-chat-section').classList.remove('hidden');
+        // Reseta a notificação visual
+        abrirChatProfissionalButton.style.backgroundColor = '';
+        abrirChatProfissionalButton.innerHTML = '<span class="material-symbols-outlined">chat</span> Abrir Chat';
     });
 
     cancelarEdicaoButton.addEventListener('click', () => {
@@ -411,6 +598,22 @@ socket.on('receive_message', (data) => {
     function iniciarChatComProfissional(profissionalId) {
         console.log("Iniciando chat com o profissional com ID: " + profissionalId);
         document.getElementById('chat-section').classList.remove('hidden');
+        profissionalIdSelecionado = profissionalId;
+        
+        // Buscar informações do profissional para exibir o nome
+        fetch(`http://localhost:5000/api/professionals/${profissionalId}`)
+            .then(response => response.json())
+            .then(profissional => {
+                profissionalAtualChat = profissional;
+                // Atualizar o título do chat se existir
+                const chatTitle = document.querySelector('#chat-section h2');
+                if (chatTitle) {
+                    chatTitle.textContent = `Chat com ${profissional.nome}`;
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar informações do profissional:', error);
+            });
     }
 
     // === Login e registro do usuário comum ===
@@ -435,8 +638,17 @@ socket.on('receive_message', (data) => {
 
         if (response.ok) {
             const usuario = await response.json();
+            
+            // Limpa dados do profissional se existirem
+            localStorage.removeItem('logado');
+            profissionalLogado = null;
+            
             localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
             usuarioLogado = usuario;
+            
+            // Conecta o usuário ao socket
+            socket.emit('login', { userId: usuario.id, type: 'user' });
+            
             showUsuarioBusca();
         } else {
             alert('Credenciais inválidas.');
@@ -467,29 +679,7 @@ socket.on('receive_message', (data) => {
         }
     });
 
-    // Função para inicializar a sessão do usuário/profissional
-function login(userId, type) {
-    socket.emit('login', { userId, type });
-    
-    // Verifica se o elemento de chat existe antes de tentar exibi-lo
-    const chatSection = document.getElementById('chat-section');
-    if (chatSection) {
-        chatSection.classList.remove('hidden'); // Exibe a seção de chat para o usuário
-    } else {
-        console.error('Elemento de chat não encontrado!');
-    }
 
-    // Verifica se o profissional está logado e exibe o chat para o profissional
-    if (type === 'professional') {
-        const professionalChatSection = document.getElementById('professional-chat-section');
-        if (professionalChatSection) {
-            professionalChatSection.classList.remove('hidden');
-        } else {
-            console.error('Elemento de chat do profissional não encontrado!');
-        }
-    }
-
-    }
 
     // === Verificações de login automático na inicialização ===
     checkLogin();

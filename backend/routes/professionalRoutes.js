@@ -17,6 +17,10 @@ router.post('/login', ProfessionalController.login);
 // Exemplo: GET /professionals/
 router.get('/', ProfessionalController.getAll);
 
+// Rota para buscar um profissional específico por ID
+// Exemplo: GET /professionals/5
+router.get('/:id', ProfessionalController.getById);
+
 // Rota para atualizar os dados de um profissional específico (via ID)
 // Exemplo: PUT /professionals/5
 router.put('/:id', ProfessionalController.update);

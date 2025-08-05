@@ -39,6 +39,12 @@ const ProfessionalModel = {
         return rows; // retorna a lista de profissionais
     },
 
+    // Busca um profissional específico por ID
+    findById: async (id) => {
+        const { rows } = await pool.query('SELECT * FROM profissionais WHERE id = $1', [id]);
+        return rows[0]; // retorna o profissional encontrado ou undefined
+    },
+
     // Atualiza um profissional existente com base no ID e novos dados
     update: async (id, data) => {
     const { nome, telefone, email, cidade, especialidade, registro, senha } = data;
