@@ -113,7 +113,7 @@ socket.on('receive_message', (data) => {
         // Exibe a tela de chat para o profissional
         if (type === 'professional') {
             document.getElementById('professional-chat-section').classList.remove('hidden');
-            profissionalLogado = { id: userId };  // Exemplo: Alocar ID do profissional após login
+            profissionalLogado = { id: userId };  
         }
     }
 
