@@ -1,18 +1,8 @@
 /**
  * Utilitários para validação de dados
- * Segue o princípio de Responsabilidade Única (SRP) do SOLID
- * Centraliza todas as validações do sistema
  */
 
-/**
- * Classe responsável por validar dados de entrada
- */
 class ValidationUtils {
-    /**
-     * Valida se um email é válido
-     * @param {string} email - Email a ser validado
-     * @returns {boolean} True se válido, false caso contrário
-     */
     static isValidEmail(email) {
         if (!email || typeof email !== 'string') {
             return false;
@@ -22,11 +12,6 @@ class ValidationUtils {
         return emailRegex.test(email);
     }
 
-    /**
-     * Valida se uma senha atende aos critérios mínimos
-     * @param {string} password - Senha a ser validada
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
     static validatePassword(password) {
         const errors = [];
         
@@ -49,11 +34,6 @@ class ValidationUtils {
         };
     }
 
-    /**
-     * Valida se um nome é válido
-     * @param {string} name - Nome a ser validado
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
     static validateName(name) {
         const errors = [];
         
@@ -72,7 +52,6 @@ class ValidationUtils {
             errors.push('Nome deve ter no máximo 100 caracteres');
         }
 
-        // Verifica se contém apenas letras, espaços e caracteres especiais comuns
         const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
         if (!nameRegex.test(trimmedName)) {
             errors.push('Nome contém caracteres inválidos');
@@ -84,11 +63,6 @@ class ValidationUtils {
         };
     }
 
-    /**
-     * Valida se um telefone é válido
-     * @param {string} phone - Telefone a ser validado
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
     static validatePhone(phone) {
         const errors = [];
         
@@ -110,11 +84,6 @@ class ValidationUtils {
         };
     }
 
-    /**
-     * Valida se uma cidade é válida
-     * @param {string} city - Cidade a ser validada
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
     static validateCity(city) {
         const errors = [];
         
@@ -129,8 +98,8 @@ class ValidationUtils {
             errors.push('Cidade deve ter pelo menos 2 caracteres');
         }
 
-        if (trimmedCity.length > 50) {
-            errors.push('Cidade deve ter no máximo 50 caracteres');
+        if (trimmedCity.length > 100) {
+            errors.push('Cidade deve ter no máximo 100 caracteres');
         }
 
         return {
@@ -139,11 +108,6 @@ class ValidationUtils {
         };
     }
 
-    /**
-     * Valida se uma especialidade é válida
-     * @param {string} specialty - Especialidade a ser validada
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
     static validateSpecialty(specialty) {
         const errors = [];
         
@@ -154,8 +118,8 @@ class ValidationUtils {
 
         const trimmedSpecialty = specialty.trim();
         
-        if (trimmedSpecialty.length < 3) {
-            errors.push('Especialidade deve ter pelo menos 3 caracteres');
+        if (trimmedSpecialty.length < 2) {
+            errors.push('Especialidade deve ter pelo menos 2 caracteres');
         }
 
         if (trimmedSpecialty.length > 100) {
@@ -168,12 +132,7 @@ class ValidationUtils {
         };
     }
 
-    /**
-     * Valida se um registro profissional é válido
-     * @param {string} registration - Registro a ser validado
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
-    static validateProfessionalRegistration(registration) {
+    static validateRegistration(registration) {
         const errors = [];
         
         if (!registration || typeof registration !== 'string') {
@@ -187,8 +146,8 @@ class ValidationUtils {
             errors.push('Registro profissional deve ter pelo menos 3 caracteres');
         }
 
-        if (trimmedRegistration.length > 20) {
-            errors.push('Registro profissional deve ter no máximo 20 caracteres');
+        if (trimmedRegistration.length > 50) {
+            errors.push('Registro profissional deve ter no máximo 50 caracteres');
         }
 
         return {
@@ -197,48 +156,10 @@ class ValidationUtils {
         };
     }
 
-    /**
-     * Valida dados de login
-     * @param {Object} loginData - Dados de login
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
-    static validateLoginData(loginData) {
+    static validateUserData(userData) {
         const errors = [];
-        
-        if (!loginData) {
-            errors.push('Dados de login são obrigatórios');
-            return { isValid: false, errors };
-        }
 
-        if (!this.isValidEmail(loginData.email)) {
-            errors.push('Email inválido');
-        }
-
-        const passwordValidation = this.validatePassword(loginData.password);
-        if (!passwordValidation.isValid) {
-            errors.push(...passwordValidation.errors);
-        }
-
-        return {
-            isValid: errors.length === 0,
-            errors
-        };
-    }
-
-    /**
-     * Valida dados de registro de usuário
-     * @param {Object} userData - Dados do usuário
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
-    static validateUserRegistration(userData) {
-        const errors = [];
-        
-        if (!userData) {
-            errors.push('Dados do usuário são obrigatórios');
-            return { isValid: false, errors };
-        }
-
-        const nameValidation = this.validateName(userData.name);
+        const nameValidation = this.validateName(userData.nome);
         if (!nameValidation.isValid) {
             errors.push(...nameValidation.errors);
         }
@@ -247,14 +168,9 @@ class ValidationUtils {
             errors.push('Email inválido');
         }
 
-        const passwordValidation = this.validatePassword(userData.password);
+        const passwordValidation = this.validatePassword(userData.senha);
         if (!passwordValidation.isValid) {
             errors.push(...passwordValidation.errors);
-        }
-
-        const phoneValidation = this.validatePhone(userData.phone);
-        if (!phoneValidation.isValid) {
-            errors.push(...phoneValidation.errors);
         }
 
         return {
@@ -263,18 +179,8 @@ class ValidationUtils {
         };
     }
 
-    /**
-     * Valida dados de registro de profissional
-     * @param {Object} professionalData - Dados do profissional
-     * @returns {Object} Objeto com resultado da validação e mensagens
-     */
-    static validateProfessionalRegistration(professionalData) {
+    static validateProfessionalData(professionalData) {
         const errors = [];
-        
-        if (!professionalData) {
-            errors.push('Dados do profissional são obrigatórios');
-            return { isValid: false, errors };
-        }
 
         const nameValidation = this.validateName(professionalData.nome);
         if (!nameValidation.isValid) {
@@ -305,7 +211,7 @@ class ValidationUtils {
             errors.push(...specialtyValidation.errors);
         }
 
-        const registrationValidation = this.validateProfessionalRegistration(professionalData.registro);
+        const registrationValidation = this.validateRegistration(professionalData.registro);
         if (!registrationValidation.isValid) {
             errors.push(...registrationValidation.errors);
         }
@@ -314,37 +220,6 @@ class ValidationUtils {
             isValid: errors.length === 0,
             errors
         };
-    }
-
-    /**
-     * Sanitiza uma string removendo caracteres perigosos
-     * @param {string} input - String a ser sanitizada
-     * @returns {string} String sanitizada
-     */
-    static sanitizeString(input) {
-        if (!input || typeof input !== 'string') {
-            return '';
-        }
-        
-        return input
-            .trim()
-            .replace(/[<>]/g, '') // Remove caracteres < e >
-            .replace(/javascript:/gi, '') // Remove javascript:
-            .replace(/on\w+=/gi, ''); // Remove event handlers
-    }
-
-    /**
-     * Valida se um ID é válido
-     * @param {string|number} id - ID a ser validado
-     * @returns {boolean} True se válido, false caso contrário
-     */
-    static isValidId(id) {
-        if (!id) {
-            return false;
-        }
-        
-        const numId = parseInt(id);
-        return !isNaN(numId) && numId > 0;
     }
 }
 
