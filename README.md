@@ -36,8 +36,8 @@ Sistema web que conecta famílias que precisam de cuidados com profissionais de 
 
 1. **Clone o repositório**
    ```bash
-   git clone <url-do-repositorio>
-   cd sistema-cuidadores
+   git clone <https://github.com/Luciano-1983/TCC.git>
+   cd backend
    ```
 
 2. **Instale as dependências**
@@ -128,10 +128,6 @@ Sistema web que conecta famílias que precisam de cuidados com profissionais de 
 - Validação robusta de dados
 - CORS configurado
 - Tratamento de erros
-
-## 📝 Licença
-
-Este projeto foi desenvolvido para fins acadêmicos (TCC).
 
 ---
 
