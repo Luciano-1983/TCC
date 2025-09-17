@@ -1,16 +1,40 @@
 /**
- * Serviço de Socket.IO para o frontend
+ * SERVIÇO DE CHAT EM TEMPO REAL (FRONTEND)
+ * 
+ * Este arquivo é responsável por gerenciar a conexão de chat
+ * do lado do navegador (frontend).
+ * 
+ * O que este serviço faz:
+ * - Conecta o navegador ao servidor de chat
+ * - Envia mensagens instantâneas
+ * - Recebe mensagens de outros usuários
+ * - Reconecta automaticamente se a conexão cair
+ * - Gerencia eventos de chat
+ * 
+ * Como funciona:
+ * 1. Cria uma conexão com o servidor de chat
+ * 2. Escuta por mensagens de outros usuários
+ * 3. Envia mensagens quando o usuário digita
+ * 4. Reconecta automaticamente se perder a conexão
  */
 
 class SocketService {
     constructor() {
+        // Conexão com o servidor de chat (inicialmente null)
         this.socket = null;
-        this.isConnected = false;
-        this.eventListeners = new Map();
-        this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 5;
-        this.reconnectDelay = 1000;
         
+        // Status da conexão (true = conectado, false = desconectado)
+        this.isConnected = false;
+        
+        // Lista de funções que escutam eventos de chat
+        this.eventListeners = new Map();
+        
+        // Controle de reconexão automática
+        this.reconnectAttempts = 0;        // Quantas vezes tentou reconectar
+        this.maxReconnectAttempts = 5;     // Máximo de tentativas
+        this.reconnectDelay = 1000;        // Tempo entre tentativas (1 segundo)
+        
+        // Inicia a conexão com o servidor de chat
         this.initializeSocket();
     }
 

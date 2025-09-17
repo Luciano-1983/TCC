@@ -605,7 +605,6 @@ footer {
     margin-top: 8px;
     margin-bottom: 12px;
     font-size: 0.9em;
-    white-space: pre-wrap;
     text-align: left;
     margin-right: auto; /* Aligns to left */
     max-width: 100%; /* Can take full width */
@@ -621,6 +620,71 @@ footer {
 
 .message.data-shared br {
     margin-bottom: 5px;
+}
+
+/* Estilos para o container de dados do profissional */
+.professional-data-container {
+    background-color: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.professional-data-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 15px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 1em;
+}
+
+.professional-data-header .material-symbols-outlined {
+    font-size: 1.2em;
+    color: white;
+}
+
+.professional-data-content {
+    padding: 15px;
+}
+
+.data-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 0;
+}
+
+.data-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.data-label {
+    font-weight: 600;
+    color: var(--text-color);
+    flex: 0 0 auto;
+    margin-right: 15px;
+    min-width: 140px;
+}
+
+.data-value {
+    color: var(--text-light-color);
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+}
+
+.data-value .coren-link {
+    margin-left: 8px;
+    vertical-align: middle;
 }
 
 .coren-link {
@@ -687,6 +751,29 @@ footer {
   #professional-chat-panel { /* Offset professional chat if both open on small screens */
     /* This logic might need JS if they can overlap, for now simple centering */
     /* A tabbed interface or single view might be better on very small screens */
+  }
+  
+  /* Ajustes para dados do profissional em dispositivos móveis */
+  .data-item {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .data-label {
+    margin-right: 0;
+    margin-bottom: 4px;
+    min-width: auto;
+    font-size: 0.9em;
+  }
+  
+  .data-value {
+    text-align: left;
+    font-size: 0.95em;
+  }
+  
+  .professional-data-content {
+    padding: 12px;
   }
 }
 

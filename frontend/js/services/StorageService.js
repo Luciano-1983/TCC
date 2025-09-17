@@ -1,11 +1,35 @@
 /**
- * Serviço de armazenamento local
+ * SERVIÇO DE ARMAZENAMENTO LOCAL
+ * 
+ * Este arquivo é responsável por salvar e recuperar dados
+ * no navegador do usuário (localStorage e sessionStorage).
+ * 
+ * O que este serviço faz:
+ * - Salva dados do usuário logado
+ * - Salva dados do profissional logado
+ * - Gerencia sessões de chat
+ * - Remove dados quando necessário
+ * - Controla expiração de dados
+ * 
+ * Tipos de armazenamento:
+ * - localStorage: Dados permanentes (ficam até serem removidos)
+ * - sessionStorage: Dados temporários (somente durante a sessão)
+ * 
+ * Exemplos de uso:
+ * - Salvar usuário logado: storageService.setUser(dadosUsuario)
+ * - Verificar se está logado: storageService.isUserLoggedIn()
+ * - Remover dados: storageService.clear()
  */
 
 class StorageService {
     constructor() {
+        // Armazenamento permanente (dados ficam salvos)
         this.storage = window.localStorage;
+        
+        // Armazenamento temporário (dados são removidos ao fechar o navegador)
         this.sessionStorage = window.sessionStorage;
+        
+        // Prefixo para identificar dados do nosso sistema
         this.prefix = 'sistema_cuidadores_';
     }
 

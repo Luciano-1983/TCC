@@ -1,32 +1,69 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 
+<!-- ========================================
+     SISTEMA DE CUIDADORES - INTERFACE PRINCIPAL
+     ========================================
+     
+     Este arquivo HTML é a interface principal do sistema.
+     Ele contém todas as telas e formulários que o usuário vê.
+     
+     Estrutura das telas:
+     1. Tela inicial - Escolha entre "Sou Profissional" ou "Busco Profissional"
+     2. Login/Cadastro de Profissionais - Área para profissionais se cadastrarem
+     3. Dashboard do Profissional - Painel do profissional logado
+     4. Busca de Profissionais - Área para usuários encontrarem cuidadores
+     5. Chat - Sistema de conversas em tempo real
+     
+     IMPORTANTE: Este arquivo funciona junto com:
+     - style.css (estilos visuais)
+     - script.js (funcionalidades interativas)
+     - Socket.IO (chat em tempo real)
+-->
+
 <head>
+  <!-- Configurações básicas da página -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sistema de Cuidadores - CAREGIVER ANYWHERE</title>
+  
+  <!-- Arquivo de estilos (CSS) -->
   <link rel="stylesheet" href="style.css" />
   
-  <script src="/socket.io/socket.io.js"></script> <!-- Inclusão do Socket.IO -->
-  <script type="module" src="script.js"></script>
+  <!-- Scripts JavaScript necessários -->
+  <script src="/socket.io/socket.io.js"></script> <!-- Biblioteca para chat em tempo real -->
+  <script type="module" src="script.js"></script> <!-- Lógica principal da interface -->
   
+  <!-- Fontes do Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Ícones do Material Symbols -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 
 <body>
+  <!-- ========================================
+       CABEÇALHO E NAVEGAÇÃO PRINCIPAL
+       ======================================== -->
   <header>
     <h1><span class="material-symbols-outlined header-icon">health_and_safety</span> Sistema de Cuidadores - CAREGIVER ANYWHERE</h1>
     <nav id="main-nav">
+      <!-- Botões de navegação sempre visíveis no topo -->
       <button id="voltar-inicial-nav"><span class="material-symbols-outlined">home</span> Início</button>
       <button id="sou-profissional-nav"><span class="material-symbols-outlined">badge</span> Sou Profissional</button>
       <button id="busco-profissional-nav"><span class="material-symbols-outlined">search</span> Busco Profissional</button>
     </nav>
   </header>
 
+  <!-- ========================================
+       CONTEÚDO PRINCIPAL DA APLICAÇÃO
+       ======================================== -->
   <main>
+    <!-- ========================================
+         TELA INICIAL - PRIMEIRA TELA QUE O USUÁRIO VÊ
+         ======================================== -->
     <section id="initial-screen">
       <div class="hero-section">
         <div class="hero-content">
@@ -77,6 +114,9 @@
       </div>
     </section>
 
+    <!-- ========================================
+         LOGIN DE PROFISSIONAIS DE SAÚDE
+         ======================================== -->
     <section id="profissional-login" class="hidden">
       <h2><span class="material-symbols-outlined">login</span> Login Profissional</h2>
       <form id="profissional-login-form">
@@ -90,6 +130,9 @@
       </form>
     </section>
 
+    <!-- ========================================
+         CADASTRO DE PROFISSIONAIS DE SAÚDE
+         ======================================== -->
     <section id="profissional-register-form" class="hidden">
       <h2><span class="material-symbols-outlined">person_add</span> Cadastro Profissional</h2>
       <form id="register-profissional-form">
@@ -112,8 +155,17 @@
           <option value="Enfermeiro">Enfermeiro</option>
         </select>
 
+        <!-- ========================================
+             CAMPO DE REGISTRO PROFISSIONAL
+             
+             FUNCIONALIDADE IMPORTANTE:
+             - Este campo aparece/desaparece baseado na especialidade
+             - Cuidadores NÃO precisam de registro profissional
+             - Outras especialidades precisam de registro (COREN, etc.)
+             - Controlado pelo JavaScript em script.js
+             ======================================== -->
         <label for="profissional-registro" id="profissional-registro-label">Registro Profissional:</label>
-        <input type="text" id="profissional-registro" name="profissional-registro" required placeholder="Número do registro (COREN, etc.)" />
+        <input type="text" id="profissional-registro" name="profissional-registro" placeholder="Número do registro (COREN, etc.)" />
 
         <label for="profissional-senha">Senha:</label>
         <input type="password" id="profissional-senha" name="profissional-senha" required placeholder="Crie uma senha forte" />
@@ -168,7 +220,7 @@
         </select>
 
         <label for="editar-profissional-registro" id="editar-profissional-registro-label">Registro Profissional:</label>
-        <input type="text" id="editar-profissional-registro" name="editar-profissional-registro" required />
+        <input type="text" id="editar-profissional-registro" name="editar-profissional-registro" />
 
         <button type="submit"><span class="material-symbols-outlined">save</span> Salvar Alterações</button>
         <button type="button" id="cancelar-edicao" class="secondary-button"><span class="material-symbols-outlined">cancel</span> Cancelar</button>

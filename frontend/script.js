@@ -1,39 +1,68 @@
+/**
+ * SISTEMA DE CUIDADORES - FRONTEND
+ * 
+ * Este arquivo contém toda a lógica da interface do usuário (frontend).
+ * É responsável por:
+ * - Gerenciar a navegação entre as telas
+ * - Processar formulários de cadastro e login
+ * - Controlar o sistema de chat em tempo real
+ * - Buscar e exibir profissionais
+ * - Gerenciar a sessão do usuário
+ * 
+ * IMPORTANTE: Este código roda no navegador do usuário, não no servidor!
+ */
+
+// Aguarda o carregamento completo da página antes de executar o código
 document.addEventListener('DOMContentLoaded', () => {
-    // === Inicialização dos elementos da interface ===
+    // ========================================
+    // INICIALIZAÇÃO DOS ELEMENTOS DA INTERFACE
+    // ========================================
     
-    // Botões da tela inicial
-    const souProfissionalButton = document.getElementById('sou-profissional');
-    const buscoProfissionalButton = document.getElementById('busco-profissional');
-    const initialScreen = document.getElementById('initial-screen');
+    // Botões da tela inicial (primeira tela que o usuário vê)
+    const souProfissionalButton = document.getElementById('sou-profissional');        // Botão "Sou Profissional"
+    const buscoProfissionalButton = document.getElementById('busco-profissional');    // Botão "Busco Profissional"
+    const initialScreen = document.getElementById('initial-screen');                  // Tela inicial
 
-    // Botões da barra de navegação
-    const souProfissionalNavButton = document.getElementById('sou-profissional-nav');
-    const buscoProfissionalNavButton = document.getElementById('busco-profissional-nav');
-    const voltarInicialNavButton = document.getElementById('voltar-inicial-nav');
+    // Botões da barra de navegação (sempre visíveis no topo)
+    const souProfissionalNavButton = document.getElementById('sou-profissional-nav');     // Navegação para área do profissional
+    const buscoProfissionalNavButton = document.getElementById('busco-profissional-nav'); // Navegação para busca
+    const voltarInicialNavButton = document.getElementById('voltar-inicial-nav');         // Voltar para tela inicial
 
-    // Login do profissional
-    const profissionalLoginForm = document.getElementById('profissional-login-form');
-    const profissionalLoginSection = document.getElementById('profissional-login');
-    const profissionalRegisterButton = document.getElementById('profissional-register');
-    const voltarInicialProfissionalLoginButton = document.getElementById('voltar-inicial-profissional-login');
+    // ========================================
+    // ELEMENTOS DO LOGIN E CADASTRO DE PROFISSIONAIS
+    // ========================================
+    
+    // Elementos da tela de login do profissional
+    const profissionalLoginForm = document.getElementById('profissional-login-form');              // Formulário de login
+    const profissionalLoginSection = document.getElementById('profissional-login');                // Tela de login
+    const profissionalRegisterButton = document.getElementById('profissional-register');           // Botão "Registrar"
+    const voltarInicialProfissionalLoginButton = document.getElementById('voltar-inicial-profissional-login'); // Botão "Voltar"
 
-    // Registro do profissional
-    const registerProfissionalFormSection = document.getElementById('profissional-register-form');
-    const registerProfissionalForm = document.getElementById('register-profissional-form');
-    const voltarLoginButton = document.getElementById('voltar-login');
+    // Elementos da tela de cadastro do profissional
+    const registerProfissionalFormSection = document.getElementById('profissional-register-form'); // Tela de cadastro
+    const registerProfissionalForm = document.getElementById('register-profissional-form');       // Formulário de cadastro
+    const voltarLoginButton = document.getElementById('voltar-login');                             // Botão "Voltar" do cadastro
 
-    // Painel do profissional logado
-    const profissionalDashboardSection = document.getElementById('profissional-dashboard');
-    const profissionalNomeExibicao = document.getElementById('profissional-nome-exibicao');
-    const profissionalNomeValor = document.getElementById('profissional-nome-valor');
-    const profissionalTelefoneValor = document.getElementById('profissional-telefone-valor');
-    const profissionalCidadeValor = document.getElementById('profissional-cidade-valor');
-    const profissionalEspecialidadeValor = document.getElementById('profissional-especialidade-valor');
-    const profissionalRegistroValor = document.getElementById('profissional-registro-valor');
-    const editarDadosButton = document.getElementById('editar-dados');
-    const abrirChatProfissionalButton = document.getElementById('abrir-chat-profissional');
-    const logoutProfissionalButton = document.getElementById('logout-profissional');
-    const excluirCadastroButton = document.getElementById('excluir-cadastro');
+    // ========================================
+    // ELEMENTOS DO DASHBOARD DO PROFISSIONAL
+    // ========================================
+    
+    // Tela principal do profissional logado
+    const profissionalDashboardSection = document.getElementById('profissional-dashboard');        // Tela do dashboard
+    
+    // Elementos para exibir dados do profissional
+    const profissionalNomeExibicao = document.getElementById('profissional-nome-exibicao');       // Nome no cabeçalho
+    const profissionalNomeValor = document.getElementById('profissional-nome-valor');             // Nome na lista de dados
+    const profissionalTelefoneValor = document.getElementById('profissional-telefone-valor');     // Telefone
+    const profissionalCidadeValor = document.getElementById('profissional-cidade-valor');         // Cidade
+    const profissionalEspecialidadeValor = document.getElementById('profissional-especialidade-valor'); // Especialidade
+    const profissionalRegistroValor = document.getElementById('profissional-registro-valor');     // Registro profissional
+    
+    // Botões de ação do dashboard
+    const editarDadosButton = document.getElementById('editar-dados');                             // Editar dados pessoais
+    const abrirChatProfissionalButton = document.getElementById('abrir-chat-profissional');       // Abrir chat
+    const logoutProfissionalButton = document.getElementById('logout-profissional');              // Fazer logout
+    const excluirCadastroButton = document.getElementById('excluir-cadastro');                    // Excluir conta
 
     // Formulário de edição
     const editarProfissionalFormSection = document.getElementById('editar-profissional-form');
@@ -139,17 +168,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para liberar dados do profissional
     function liberarDadosProfissional() {
         if (usuarioAtualChat) {
-            const dadosProfissional = `
-                <strong>Dados do Profissional ${profissionalLogado.nome}:</strong><br>
-                Nome Completo: ${profissionalLogado.nome}<br>
-                Telefone: ${profissionalLogado.telefone}<br>
-                Cidade: ${profissionalLogado.cidade}<br>
-                Especialidade: ${profissionalLogado.especialidade}<br>
-                Registro Profissional: ${profissionalLogado.registro} 
-                <a href="https://www.portalcoren-rs.gov.br/index.php?categoria=servicos&pagina=consulta-profissional" 
+            const registroText = profissionalLogado.registro || 'Não informado';
+            const registroLink = profissionalLogado.registro ? 
+                `<a href="https://www.portalcoren-rs.gov.br/index.php?categoria=servicos&pagina=consulta-profissional" 
                    target="_blank" class="coren-link">
                     <span class="material-symbols-outlined coren-icon">open_in_new</span>
-                </a>
+                </a>` : '';
+
+            const dadosProfissional = `
+                <div class="professional-data-container">
+                    <div class="professional-data-header">
+                        <span class="material-symbols-outlined">badge</span>
+                        <strong>Dados do Profissional</strong>
+                    </div>
+                    <div class="professional-data-content">
+                        <div class="data-item">
+                            <span class="data-label">Nome Completo:</span>
+                            <span class="data-value">${profissionalLogado.nome}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Telefone:</span>
+                            <span class="data-value">${profissionalLogado.telefone}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Cidade:</span>
+                            <span class="data-value">${profissionalLogado.cidade}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Especialidade:</span>
+                            <span class="data-value">${profissionalLogado.especialidade}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Registro Profissional:</span>
+                            <span class="data-value">${registroText} ${registroLink}</span>
+                        </div>
+                    </div>
+                </div>
             `;
             
             // Envia os dados como uma mensagem especial
@@ -344,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         profissionalTelefoneValor.textContent = profissional.telefone;
         profissionalCidadeValor.textContent = profissional.cidade;
         profissionalEspecialidadeValor.textContent = profissional.especialidade;
-        profissionalRegistroValor.textContent = profissional.registro;
+        profissionalRegistroValor.textContent = profissional.registro || 'Não informado';
         showSection(profissionalDashboardSection);
     }
 
@@ -376,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('profissional-login-email').value;
         const senha = document.getElementById('profissional-login-password').value;
 
-        const response = await fetch('http://localhost:5000/api/professionals/login', {
+        const response = await fetch('/api/professionals/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, senha }),
@@ -420,10 +474,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const registro = document.getElementById('profissional-registro').value;
         const senha = document.getElementById('profissional-senha').value;
 
-        const response = await fetch('http://localhost:5000/api/professionals/register', {
+        // Se especialidade for "Cuidador", não enviar o campo registro
+        const dataToSend = { nome, telefone, email, cidade, especialidade, senha };
+        if (especialidade !== 'Cuidador') {
+            dataToSend.registro = registro;
+        }
+
+        const response = await fetch('/api/professionals/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome, telefone, email, cidade, especialidade, registro, senha }),
+            body: JSON.stringify(dataToSend),
         });
 
         if (response.ok) {
@@ -438,6 +498,52 @@ document.addEventListener('DOMContentLoaded', () => {
         showSection(profissionalLoginSection);
     });
 
+    // ========================================
+    // CONTROLE DE VISIBILIDADE DO CAMPO DE REGISTRO
+    // ========================================
+    // 
+    // FUNCIONALIDADE IMPORTANTE: Cuidadores não precisam de registro profissional!
+    // Esta seção controla quando o campo de registro deve aparecer ou não.
+    
+    // Elementos do campo de registro no formulário de cadastro
+    const profissionalEspecialidadeSelect = document.getElementById('profissional-especialidade');  // Select de especialidade
+    const profissionalRegistroLabel = document.getElementById('profissional-registro-label');       // Label do campo registro
+    const profissionalRegistroInput = document.getElementById('profissional-registro');             // Input do campo registro
+
+    /**
+     * FUNÇÃO PARA CONTROLAR VISIBILIDADE DO CAMPO DE REGISTRO
+     * 
+     * Esta é uma das funcionalidades mais importantes do sistema!
+     * 
+     * REGRA DE NEGÓCIO: Cuidadores não precisam de registro profissional
+     * porque esta especialidade não possui vínculo com órgão regulamentador.
+     * 
+     * Comportamento:
+     * - Se especialidade = "Cuidador": Oculta o campo de registro
+     * - Se especialidade = "Enfermeiro" ou "Técnico": Mostra o campo de registro
+     */
+    function toggleRegistroField() {
+        const especialidade = profissionalEspecialidadeSelect.value;
+        
+        if (especialidade === 'Cuidador') {
+            // CUIDADOR: Oculta o campo de registro (não é obrigatório)
+            profissionalRegistroLabel.style.display = 'none';
+            profissionalRegistroInput.style.display = 'none';
+            profissionalRegistroInput.removeAttribute('required');
+        } else {
+            // OUTRAS ESPECIALIDADES: Mostra o campo de registro (é obrigatório)
+            profissionalRegistroLabel.style.display = 'block';
+            profissionalRegistroInput.style.display = 'block';
+            profissionalRegistroInput.setAttribute('required', 'required');
+        }
+    }
+
+    // Configura o evento para executar a função quando a especialidade mudar
+    profissionalEspecialidadeSelect.addEventListener('change', toggleRegistroField);
+
+    // Executa a função na inicialização para configurar o estado inicial
+    toggleRegistroField();
+
     // === Edição dos dados do profissional ===
     editarDadosButton.addEventListener('click', () => {
         showSection(editarProfissionalFormSection);
@@ -447,8 +553,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('editar-profissional-telefone').value = profissionalLogado.telefone;
         document.getElementById('editar-profissional-cidade').value = profissionalLogado.cidade;
         document.getElementById('editar-profissional-especialidade').value = profissionalLogado.especialidade;
-        document.getElementById('editar-profissional-registro').value = profissionalLogado.registro;
+        document.getElementById('editar-profissional-registro').value = profissionalLogado.registro || '';
+        
+        // Aplicar controle de visibilidade do campo de registro
+        toggleEditarRegistroField();
     });
+
+    // === Controle de visibilidade do campo de registro no formulário de edição ===
+    const editarProfissionalEspecialidadeSelect = document.getElementById('editar-profissional-especialidade');
+    const editarProfissionalRegistroLabel = document.getElementById('editar-profissional-registro-label');
+    const editarProfissionalRegistroInput = document.getElementById('editar-profissional-registro');
+
+    function toggleEditarRegistroField() {
+        const especialidade = editarProfissionalEspecialidadeSelect.value;
+        if (especialidade === 'Cuidador') {
+            editarProfissionalRegistroLabel.style.display = 'none';
+            editarProfissionalRegistroInput.style.display = 'none';
+            editarProfissionalRegistroInput.removeAttribute('required');
+        } else {
+            editarProfissionalRegistroLabel.style.display = 'block';
+            editarProfissionalRegistroInput.style.display = 'block';
+            editarProfissionalRegistroInput.setAttribute('required', 'required');
+        }
+    }
+
+    // Adicionar listener para mudança de especialidade no formulário de edição
+    editarProfissionalEspecialidadeSelect.addEventListener('change', toggleEditarRegistroField);
 
     // === Abrir chat do profissional ===
     abrirChatProfissionalButton.addEventListener('click', () => {
@@ -465,20 +595,25 @@ document.addEventListener('DOMContentLoaded', () => {
     editarRegisterProfissionalForm.addEventListener('submit', async (event) => {
         event.preventDefault(); 
         // Coletar os dados atualizados
+        const especialidade = document.getElementById('editar-profissional-especialidade').value;
         const updatedData = {
             nome: document.getElementById('editar-profissional-nome').value,
             email: document.getElementById('editar-profissional-email').value,
             senha: document.getElementById('editar-profissional-senha').value,
             telefone: document.getElementById('editar-profissional-telefone').value,
             cidade: document.getElementById('editar-profissional-cidade').value,
-            especialidade: document.getElementById('editar-profissional-especialidade').value,
-            registro: document.getElementById('editar-profissional-registro').value
+            especialidade: especialidade
         };
+
+        // Se especialidade for "Cuidador", não enviar o campo registro
+        if (especialidade !== 'Cuidador') {
+            updatedData.registro = document.getElementById('editar-profissional-registro').value;
+        }
 
         const profissionalId = profissionalLogado.id;  
 
         try {
-            const response = await fetch(`http://localhost:5000/api/professionals/${profissionalId}`, {
+            const response = await fetch(`/api/professionals/${profissionalId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedData),
@@ -508,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
     excluirCadastroButton.addEventListener('click', async () => {
         if (confirm('Tem certeza que deseja excluir seu cadastro? Esta ação não poderá ser desfeita.')) {
             try {
-                const response = await fetch(`http://localhost:5000/api/professionals/${profissionalLogado.id}`, {
+                const response = await fetch(`/api/professionals/${profissionalLogado.id}`, {
                     method: 'DELETE',
                 });
 
@@ -537,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const especialidade = document.getElementById('busca-especialidade').value;
         const cidade = document.getElementById('busca-cidade').value;
 
-        const response = await fetch('http://localhost:5000/api/professionals');
+        const response = await fetch('/api/professionals');
         const profissionais = await response.json();
 
         const resultados = profissionais.filter(profissional => {
@@ -586,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
         profissionalIdSelecionado = profissionalId;
         
         // Buscar informações do profissional para exibir o nome
-        fetch(`http://localhost:5000/api/professionals/${profissionalId}`)
+        fetch(`/api/professionals/${profissionalId}`)
             .then(response => response.json())
             .then(profissional => {
                 profissionalAtualChat = profissional;
@@ -615,7 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('usuario-login-email').value;
         const senha = document.getElementById('usuario-login-password').value;
 
-        const response = await fetch('http://localhost:5000/api/users/login', {
+        const response = await fetch('/api/users/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, senha }),
@@ -650,7 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('usuario-email').value;
         const senha = document.getElementById('usuario-senha').value;
 
-        const response = await fetch('http://localhost:5000/api/users/register', {
+        const response = await fetch('/api/users/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome, email, senha }),

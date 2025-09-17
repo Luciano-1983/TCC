@@ -1,29 +1,71 @@
 /**
- * Utilitários para validação de dados
+ * UTILITÁRIOS PARA VALIDAÇÃO DE DADOS
+ * 
+ * Este arquivo contém todas as funções responsáveis por validar os dados
+ * enviados pelos usuários antes de serem salvos no banco de dados.
+ * 
+ * As validações garantem que:
+ * - Os dados estão no formato correto
+ * - Os campos obrigatórios foram preenchidos
+ * - Os dados atendem aos critérios de segurança
+ * - As regras de negócio são respeitadas
+ * 
+ * IMPORTANTE: Cuidadores não precisam de registro profissional!
  */
 
 class ValidationUtils {
+    /**
+     * VALIDAR FORMATO DE EMAIL
+     * 
+     * Esta função verifica se um email está no formato correto.
+     * Um email válido deve ter: usuario@dominio.com
+     * 
+     * Parâmetros:
+     * - email: Email a ser validado
+     * 
+     * Retorna: true (se válido) ou false (se inválido)
+     */
     static isValidEmail(email) {
+        // Verifica se o email foi fornecido e é uma string
         if (!email || typeof email !== 'string') {
             return false;
         }
         
+        // Expressão regular para validar formato de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
 
+    /**
+     * VALIDAR SENHA
+     * 
+     * Esta função verifica se uma senha atende aos critérios de segurança.
+     * 
+     * Critérios de validação:
+     * - Deve ter pelo menos 6 caracteres
+     * - Deve ter no máximo 50 caracteres
+     * - É obrigatória
+     * 
+     * Parâmetros:
+     * - password: Senha a ser validada
+     * 
+     * Retorna: Objeto com isValid (true/false) e lista de erros
+     */
     static validatePassword(password) {
         const errors = [];
         
+        // Verifica se a senha foi fornecida
         if (!password || typeof password !== 'string') {
             errors.push('Senha é obrigatória');
             return { isValid: false, errors };
         }
 
+        // Verifica tamanho mínimo
         if (password.length < 6) {
             errors.push('Senha deve ter pelo menos 6 caracteres');
         }
 
+        // Verifica tamanho máximo
         if (password.length > 50) {
             errors.push('Senha deve ter no máximo 50 caracteres');
         }
@@ -132,22 +174,59 @@ class ValidationUtils {
         };
     }
 
-    static validateRegistration(registration) {
+    /**
+     * VALIDAR REGISTRO PROFISSIONAL
+     * 
+     * Esta é uma das validações mais importantes do sistema!
+     * 
+     * REGRA ESPECIAL: Cuidadores não precisam de registro profissional
+     * porque esta especialidade não possui vínculo com órgão regulamentador.
+     * 
+     * Para outras especialidades (Enfermeiro, Técnico de Enfermagem):
+     * - Registro é obrigatório
+     * - Deve ter pelo menos 3 caracteres
+     * - Deve ter no máximo 50 caracteres
+     * 
+     * Parâmetros:
+     * - registration: Número do registro profissional
+     * - specialty: Especialidade do profissional
+     * 
+     * Retorna: Objeto com isValid (true/false) e lista de erros
+     */
+    static validateRegistration(registration, specialty = null) {
         const errors = [];
         
-        if (!registration || typeof registration !== 'string') {
-            errors.push('Registro profissional é obrigatório');
-            return { isValid: false, errors };
-        }
+        // REGRA ESPECIAL: Cuidadores não precisam de registro profissional
+        if (specialty === 'Cuidador') {
+            // Se for cuidador, registro é opcional
+            // Se foi fornecido, valida o formato
+            if (registration && typeof registration === 'string') {
+                const trimmedRegistration = registration.trim();
+                if (trimmedRegistration.length > 0) {
+                    if (trimmedRegistration.length < 3) {
+                        errors.push('Registro profissional deve ter pelo menos 3 caracteres');
+                    }
+                    if (trimmedRegistration.length > 50) {
+                        errors.push('Registro profissional deve ter no máximo 50 caracteres');
+                    }
+                }
+            }
+        } else {
+            // Para outras especialidades, registro é obrigatório
+            if (!registration || typeof registration !== 'string') {
+                errors.push('Registro profissional é obrigatório');
+                return { isValid: false, errors };
+            }
 
-        const trimmedRegistration = registration.trim();
-        
-        if (trimmedRegistration.length < 3) {
-            errors.push('Registro profissional deve ter pelo menos 3 caracteres');
-        }
+            const trimmedRegistration = registration.trim();
+            
+            if (trimmedRegistration.length < 3) {
+                errors.push('Registro profissional deve ter pelo menos 3 caracteres');
+            }
 
-        if (trimmedRegistration.length > 50) {
-            errors.push('Registro profissional deve ter no máximo 50 caracteres');
+            if (trimmedRegistration.length > 50) {
+                errors.push('Registro profissional deve ter no máximo 50 caracteres');
+            }
         }
 
         return {
@@ -211,7 +290,7 @@ class ValidationUtils {
             errors.push(...specialtyValidation.errors);
         }
 
-        const registrationValidation = this.validateRegistration(professionalData.registro);
+        const registrationValidation = this.validateRegistration(professionalData.registro, professionalData.especialidade);
         if (!registrationValidation.isValid) {
             errors.push(...registrationValidation.errors);
         }
